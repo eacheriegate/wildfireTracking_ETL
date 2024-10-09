@@ -1,8 +1,6 @@
-# ETL Workflow for Assessing Flood Risk using NOAA Data (New York City, NY, USA)
+# ETL Workflow for Interactive Wildfire Mapping using NASA Visible Infrared Imaging Radiometer Suite (VIIRS) Data (Los Angeles, CA, USA)
 
-This project analyzes flood risk across different regions of New York City using geospatial data from NOAA. The ETL (Extract, Transform, Load) pipeline gathers and processes NOAA precipitation and elevation data, followed by risk mapping and visualization of flood-prone areas in NYC.
-
-This project serves as the foundational work from which we are expanding our investigation into ghost forest development and its environmental drivers. We are currently developing this research into a forthcoming manuscript, with details to be released upon the publication's DOI assignment.
+This project focuses on creating interactive wildfire maps for the Los Angeles area using NASA NIIRS (Visible Infrared Imaging Radiometer Suite) data. The ETL (Extract, Transform, Load) pipeline processes fire detection data, clipping and transforming it based on geospatial boundaries, and generates interactive time-series maps for visualization.
 
 ---
 
@@ -27,8 +25,7 @@ This repository details the functions capturing our standardized workflow. Broad
 
 ## 1.1 Data Sources
 
-1. **NOAA National Water Model Data: [Link to dataset](https://www.noaa.gov/nwm)
-2. ** USGS Digital Elevation Models (DEMs): [Link to dataset](https://www.usgs.gov/)
+1. **USGS Digital Elevation Models (DEMs):** [Link to dataset](https://apps.nationalmap.gov/downloader/)
 
 ## 1.2 Method Workflow
 
@@ -42,10 +39,12 @@ This repository details the functions capturing our standardized workflow. Broad
    cd flood-risk-analysis
 
 2. **Set up virtual environment:**
+   ```bash
    python -m venv env
    source env/bin/activate
 
 3. **Install required dependencies and run the project:**
+   ```bash
    pip install -r requirements.txt
    python run_analysis.py
 

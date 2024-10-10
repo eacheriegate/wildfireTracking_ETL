@@ -1,3 +1,4 @@
+import os
 import geopandas as gpd
 import folium
 from folium.plugins import HeatMap
@@ -8,7 +9,7 @@ import webbrowser
 PROCESSED_FIRE_FILE = "data/processed/VIIRS_FireData_LACo.shp"
 LA_COUNTY_BOUNDARY_FILE = "data/processed/LA_County_Boundary.shp"
 
-def format_acq_time(acq_time):
+def format_time(acq_time):
     """Convert acq_time from HHMM to HH:MM:SS format."""
     acq_time_str = str(acq_time).zfill(4)  # Ensure acq_time has 4 digits
     return f"{acq_time_str[:2]}:{acq_time_str[2:]}:00"  # Format as HH:MM:SS
@@ -22,7 +23,7 @@ def create_interactive_fire_map(fire_data_file, boundary_file):
     la_center = [34.0522, -118.2437]  # Lat/Long of LA County
     fire_map = folium.Map(location=la_center, zoom_start=8, tiles=None)
 
-    # First, add CartoDB Positron (Light) as the default tile layer
+    # Add CartoDB Positron (Light) as the default tile layer
     folium.TileLayer('cartodb positron', name="Light Mode Tile", attr='Map data © OpenStreetMap contributors, © CARTO').add_to(fire_map)
 
     # Add CartoDB Dark Matter (Dark) as another option
@@ -61,7 +62,7 @@ def create_interactive_fire_map(fire_data_file, boundary_file):
         style = get_marker_style(row)
 
          # Format acq_time from HHMM to HH:MM:SS
-        formatted_time = format_acq_time(row['acq_time'])
+        formatted_time = format_time(row['acq_time'])
 
         # Enhanced popup with more information
         popup_html = f"""
@@ -94,6 +95,20 @@ def create_interactive_fire_map(fire_data_file, boundary_file):
     # Add LayerControl to toggle layers on and off
     folium.LayerControl().add_to(fire_map)
 
+    # Custom legend for fire markers
+    legend_html = """
+     <div style="position: fixed; 
+     bottom: 50px; left: 50px; width: 200px; height: 100px; 
+     background-color: white; z-index:9999; font-size:14px;
+     border:2px solid grey; padding: 10px;">
+     <b>Active Fire Intensity Guide</b> <br>
+     <i style="background: #d73027; border-radius: 50%; width: 12px; height: 12px; display: inline-block;"></i> High Intensity Fire<br>
+     <i style="background: #fc8d59; border-radius: 50%; width: 12px; height: 12px; display: inline-block;"></i> Medium Intensity Fire<br>
+     <i style="background: #fee08b; border-radius: 50%; width: 12px; height: 12px; display: inline-block;"></i> Low Intensity Fire<br>
+     </div>
+    """
+    fire_map.get_root().html.add_child(folium.Element(legend_html))
+
     # Display the map
     return fire_map
 
@@ -103,9 +118,15 @@ if __name__ == "__main__":
     display(fire_map)
 
     # Save the map as an HTML file
-    fire_map.save("fire_interactive_map.html")
-    print("Map saved to fire_interactive_map.html. Open this file in a web browser to view it.")
+    html_file = "fire_interactive_map.html"
+    fire_map.save(html_file)
+    print(f"Map saved to {html_file}")
 
-    # Open the map in the default web browser
-    webbrowser.open("fire_interactive_map.html")
+    # Upload to S3 bucket automatically
+    bucket_name = 'viirs-active-fire-map'
+    os.system(f"aws s3 cp {html_file} s3://{bucket_name}/fire_interactive_map.html")
+    print(f"Uploaded {html_file} to s3://{bucket_name}/fire_interactive_map.html")
+
+    # Open the map in the default web browser (optional)
+    webbrowser.open(html_file)
     print("Map opened in your default web browser.")

@@ -4,7 +4,7 @@ import os
 import pandas as pd
 from datetime import datetime, timedelta
 
-# Configure NASA FIIRMS API, data, and location variables
+# Configure NASA FIRMS API, data, and location variables
 OUTPUT_DIR = "data/raw/"
 MAP_KEY = 'fcaac2af71c612e0b3bea31ad6ab7abe'
 source = 'VIIRS_SNPP_NRT'

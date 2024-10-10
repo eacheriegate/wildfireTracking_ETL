@@ -48,4 +48,4 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       run: |
-        aws s3 cp fire_interactive_map.html s3://viirs-active-fire-map/fire_interactive_map.html
+        aws s3 cp fire_interactive_map.html s3://viirs-active-fire-map/fire_interactive_map.html --region us-west-1

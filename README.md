@@ -1,6 +1,8 @@
 # ETL Workflow for a Web Map that Tracks Active Wildfires using NASA Visible Infrared Imaging Radiometer Suite (VIIRS) Data (Los Angeles, CA, USA)
 
-This project focuses on creating an interactive web map that tracks active wildfires in Los Angeles County area using NASA NIIRS (Visible Infrared Imaging Radiometer Suite) data. The ETL (Extract, Transform, Load) pipeline extracts active fire detection data, clips it to Los Angeles County boundary, transforms it to the correct projection, and generates an interactive web map for visualization.
+This project focuses on creating an interactive web map that tracks active wildfires in Los Angeles County area using NASA NIIRS (Visible Infrared Imaging Radiometer Suite) data. 
+
+This ETL (Extract, Transform, Load) pipeline extracts active fire detection data, clips it to Los Angeles County boundary, transforms it to the correct projection, and generates an interactive web map for visualization.
 
 [Click Here to View the Web Map](https://viirs-active-fire-map.s3.amazonaws.com/fire_interactive_map.html)
 
@@ -15,7 +17,7 @@ This project focuses on creating an interactive web map that tracks active wildf
 
 ## 1.0 Overview
 
-This repository details the functions capturing our standardized workflow. Broadly, this workflow includes:
+This repository details the functions capturing the standardized workflow. Broadly, this includes:
 
 1. **Extraction of Precipitation and Elevation Data from NOAA**
    

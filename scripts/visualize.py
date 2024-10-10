@@ -127,6 +127,6 @@ if __name__ == "__main__":
     os.system(f"aws s3 cp {html_file} s3://{bucket_name}/fire_interactive_map.html")
     print(f"Uploaded {html_file} to s3://{bucket_name}/fire_interactive_map.html")
 
-    # Open the map in the default web browser (optional)
-    webbrowser.open(html_file)
-    print("Map opened in your default web browser.")
+    # Open web map in web browser
+    #webbrowser.open(html_file)
+    #print("Map opened in your default web browser.")

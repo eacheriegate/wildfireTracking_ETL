@@ -1,0 +1,48 @@
+name: Daily Fire Map Update
+
+on:
+  schedule:
+    # Runs at 8 AM UTC every day (adjust cron if necessary)
+    - cron: '0 8 * * *'
+  workflow_dispatch:  # Allows manual triggering from GitHub UI
+
+jobs:
+  run-etl:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout the repository to have access to your scripts
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    # Set up Python environment
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'  # Set the Python version you're using
+
+    # Install dependencies
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt  # Assuming you have a requirements.txt file
+
+    # Run the extract step
+    - name: Run extract script
+      run: |
+        python scripts/extract.py
+
+    # Run the transform step
+    - name: Run transform script
+      run: |
+        python scripts/transform.py
+
+    # Run the visualize step
+    - name: Run visualize script
+      run: |
+        python scripts/visualize.py
+
+    # Optional: Upload the updated map to S3 or other hosting service
+    - name: Upload to S3
+      run: |
+      aws s3 cp fire_interactive_map.html s3://viirs-active-fire-map/fire_interactive_map.html

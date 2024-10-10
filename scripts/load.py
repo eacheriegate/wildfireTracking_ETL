@@ -3,7 +3,6 @@ import rasterio
 from rasterio.enums import Resampling
 from rio_cogeo.cogeo import cog_translate, cog_validate  # Correct import for cog_translate and cog_validate
 from rio_cogeo.profiles import cog_profiles  # Import cog_profiles for default COG profiles
-import shutil
 
 # Define processed data directories
 PROCESSED_DATA_DIR = "data/processed/"

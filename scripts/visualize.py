@@ -97,16 +97,36 @@ def create_interactive_fire_map(fire_data_file, boundary_file):
 
     # Custom legend for fire markers
     legend_html = """
-     <div style="position: fixed; 
-     bottom: 50px; left: 50px; width: 200px; height: 100px; 
-     background-color: white; z-index:9999; font-size:14px;
-     border:2px solid grey; padding: 10px;">
-     <b>Active Fire Intensity Guide</b> <br>
-     <i style="background: #d73027; border-radius: 50%; width: 12px; height: 12px; display: inline-block;"></i> High Intensity Fire<br>
-     <i style="background: #fc8d59; border-radius: 50%; width: 12px; height: 12px; display: inline-block;"></i> Medium Intensity Fire<br>
-     <i style="background: #fee08b; border-radius: 50%; width: 12px; height: 12px; display: inline-block;"></i> Low Intensity Fire<br>
-     </div>
-    """
+        <style>
+        /* Style for small screens */
+        @media (max-width: 600px) {
+            .legend {
+                width: 150px;
+                font-size: 12px;
+                bottom: 20px;
+                left: 20px;
+            }
+        }
+        
+        /* Style for larger screens */
+        @media (min-width: 601px) {
+            .legend {
+                width: 200px;
+                font-size: 14px;
+                bottom: 50px;
+                left: 50px;
+            }
+        }
+        </style>
+
+        <div class="legend" style="position: fixed; 
+        background-color: white; z-index:9999; border:2px solid grey; padding: 10px;">
+        <b>Active Fire Intensity Guide</b> <br>
+        <i style="background: #d73027; border-radius: 50%; width: 12px; height: 12px; display: inline-block;"></i> High Intensity Fire<br>
+        <i style="background: #fc8d59; border-radius: 50%; width: 12px; height: 12px; display: inline-block;"></i> Medium Intensity Fire<br>
+        <i style="background: #fee08b; border-radius: 50%; width: 12px; height: 12px; display: inline-block;"></i> Low Intensity Fire<br>
+        </div>
+        """
     fire_map.get_root().html.add_child(folium.Element(legend_html))
 
     # Display the map
@@ -128,5 +148,5 @@ if __name__ == "__main__":
     print(f"Uploaded {html_file} to s3://{bucket_name}/fire_interactive_map.html")
 
     # Open web map in web browser
-    #webbrowser.open(html_file)
-    #print("Map opened in your default web browser.")
+    webbrowser.open(html_file)
+    print("Map opened in your default web browser.")

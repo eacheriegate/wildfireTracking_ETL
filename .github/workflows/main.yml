@@ -37,7 +37,7 @@ jobs:
 
     - name: Run visualize script
       run: |
-        python scripts/visualize.py
+        python scripts/load.py
 
     # Upload the updated map to S3 bucket
     - name: Upload to S3

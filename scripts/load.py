@@ -41,19 +41,28 @@ def create_interactive_fire_map(fire_data_file, boundary_file):
     ).add_to(fire_map)
 
     # Add a feature group for the fire data (this can be toggled in the LayerControl)
-    fire_layer = folium.FeatureGroup(name="Active Fires")
+    fire_layer = folium.FeatureGroup(name="Fires/Hotspots")
 
     # Define color scheme based on fire radiative power (frp)
     def get_marker_style(row):
         frp = row.get('frp', 0)  # Fire radiative power (intensity)
-        if frp > 1.5:
-            return {"color": "#d73027", "radius": 10, "fillOpacity": 0.7}  # Red for high intensity
-        elif frp > 0.5:
-            return {"color": "#fc8d59", "radius": 8, "fillOpacity": 0.6}  # Orange for medium intensity
+        
+        # Define thresholds for low, medium, and high intensity
+        high_intensity_threshold = 3.0
+        medium_intensity_threshold = 1.5
+        
+        # Define marker styles based on FRP values
+        if frp > high_intensity_threshold:
+            # High Intensity: Dark Red, larger marker
+            return {"color": "#d73027", "radius": 10, "fillOpacity": 0.8}
+        elif frp > medium_intensity_threshold:
+            # Medium Intensity: Orange, medium marker
+            return {"color": "#fc8d59", "radius": 8, "fillOpacity": 0.6}
         else:
-            return {"color": "#fee08b", "radius": 6, "fillOpacity": 0.5}  # Yellow for low intensity
+            # Low Intensity: Yellow, smaller marker
+            return {"color": "#fee08b", "radius": 6, "fillOpacity": 0.5}
 
-    # Add markers to the map for each fire event
+    # Add markers for each fire event
     for _, row in fire_gdf.iterrows():
         lat = row['geometry'].y
         lon = row['geometry'].x
@@ -66,7 +75,7 @@ def create_interactive_fire_map(fire_data_file, boundary_file):
 
         # Enhanced popup with more information
         popup_html = f"""
-        <div style="font-family: Arial; font-size: 12px; background-color: #f9f9f9; padding: 10px; border-radius: 5px; box-shadow: 2px 2px 5px #888;">
+        <div style="font-family: Arial; font-size: 12px; background-color: rgba(255,255,255,0.85); padding: 10px; border-radius: 5px; box-shadow: 2px 2px 5px #888;">
             <b>Date:</b> {row['acq_date']}<br>
             <b>Time:</b> {formatted_time}<br>
             <b>Brightness:</b> {row.get('bright_ti4', 'N/A')} K<br>
@@ -119,13 +128,33 @@ def create_interactive_fire_map(fire_data_file, boundary_file):
         }
         </style>
 
-        <div class="legend" style="position: fixed; 
-        background-color: white; z-index:9999; border:2px solid grey; padding: 10px;">
-        <b>Active Fire Intensity Guide</b> <br>
-        <i style="background: #d73027; border-radius: 50%; width: 12px; height: 12px; display: inline-block;"></i> High Intensity Fire<br>
-        <i style="background: #fc8d59; border-radius: 50%; width: 12px; height: 12px; display: inline-block;"></i> Medium Intensity Fire<br>
-        <i style="background: #fee08b; border-radius: 50%; width: 12px; height: 12px; display: inline-block;"></i> Low Intensity Fire<br>
+    <div class="legend" style="position: fixed; 
+        bottom: 30px; left: 30px; 
+        background-color: white; 
+        border-radius: 8px; 
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); 
+        z-index: 9999; 
+        padding: 10px 15px;
+        width: 250px; 
+        font-size: 14px;
+        line-height: 1.4;  /* Reduced line-height for less space between items */
+        border: 2px solid #ccc;">
+        
+        <b style="font-size: 16px; margin-bottom: 6px; display: block;">Active Fire Intensity</b>
+        
+        <div style="margin-bottom: 4px;">
+            <i style="background: #d73027; border-radius: 50%; width: 14px; height: 14px; display: inline-block; margin-right: 6px;"></i> 
+            High Intensity (> 3 FRP)
         </div>
+        <div style="margin-bottom: 4px;">
+            <i style="background: #fc8d59; border-radius: 50%; width: 14px; height: 14px; display: inline-block; margin-right: 6px;"></i> 
+            Medium Intensity (1.5 - 3 FRP)
+        </div>
+        <div>
+            <i style="background: #fee08b; border-radius: 50%; width: 14px; height: 14px; display: inline-block; margin-right: 6px;"></i> 
+            Low Intensity (0 - 1.5 FRP)
+        </div>
+    </div>
         """
     fire_map.get_root().html.add_child(folium.Element(legend_html))
 

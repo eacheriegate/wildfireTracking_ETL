@@ -1,73 +1,46 @@
 # Active Wildfire Tracking with VIIRS Data: Automated ETL & Web Map for LA County
 
-This project focuses on creating an interactive web map that tracks active wildfires in the Los Angeles County area using NASA VIIRS (Visible Infrared Imaging Radiometer Suite) data.
+This project automates an Extract, Transform, and Load (ETL) workflow that fetches and visualizes active fire data within Los Angeles (LA) County using NASA VIIRS (Visible Infrared Imaging Radiometer Suite) satellite data. The workflow runs daily to update and publish an interactive fire map, which displays recent fires, their intensity based on the Fire Radiative Power (FRP), and the surface temperature based on the brightness (M13 band in the mid-wave infrared, MWIR).
 
-This ETL (Extract, Transform, Load) pipeline extracts active fire detection data, clips it to the Los Angeles County boundary, transforms it to the correct projection, and generates an interactive web map for visualization.
+The interactive web map is generated using Python, Geopandas, and Folium and is automatically uploaded to an AWS S3 bucket for easy access and sharing.
 
 [Click Here to View the Web Map](https://viirs-active-fire-map.s3.amazonaws.com/fire_interactive_map.html)
 
+[![View the Web Map](https://img.shields.io/badge/View-Web_Map-blue?style=for-the-badge)](https://viirs-active-fire-map.s3.amazonaws.com/fire_interactive_map.html)
+
 ---
 
-## Table of Contents
-- [Overview](#10-overview)
-- [Data Sources](#11-data-sources)
-- [Method Workflow](#12-method-workflow)
-- [Results Example](#13-results-example)
-- [Installation](#20-installation)
+## ✨ Features
+- **Automated Daily Updates**: Workflow is scheduled to run daily at 8 AM PST using GitHub Actions' cron jobs.
+- **Data Extraction**: Fetches the latest active fire data from NASA's Fire Information and Resource Management System (FIRMS) API and clips it to the LA County boundary.
+- **Data Transformation:** Converts the raw data into a geospatial format, filters fires from the last 48 hours, and reprojects the data to match LA County’s geographic coordinates.
+- **Interactive Map Visualization:** Displays active fire locations and intensities on an interactive map with customizable layers, including light and dark tile views, and a heatmap of fire intensity with associated legend.
+- **Responsive Mobile Design:** Interactive web map includes responsive design so that its layout automatically adjusts across different screen sizes and devices.
+- **Automated S3 Upload:** After generating the map, the workflow uploads the updated map to an AWS S3 bucket, making it accessible through a public link.
 
-## 1.0 Overview
+## 🚀 How It Works
 
-This repository details the functions capturing the standardized workflow. Broadly, this includes:
+### Data Pipeline
+1. **Extract:**
+   - Fetches the LA County boundary and active fire data (VIIRS) from NASA FIRMS API.
+   - Saves raw data in the `data/raw/` directory.
 
-1. **Extraction of VIIRS Active Fire Detection Data**
-   
-2. **Transformation of Data:** This includes clipping to Los Angeles County boundaries and reprojecting the data to the correct coordinate system.
+2. **Transform:**
+   - Converts LA County boundary GeoJSON into a shapefile format.
+   - Clips the fire data to the LA County boundary and filters it to include only fires from the last 48 hours.
+   - Reprojects fire data to match the LA County coordinate system.
 
-3. **Loading the Data:** The processed fire detection data is visualized in an interactive web map.
+3. **Load:**
+   - Creates an interactive map using Folium, adding fire markers with intensity levels and a heatmap layer.
+   - Saves the map as `fire_interactive_map.html` in the project root directory.
 
-4. **Data Visualization:** The data is displayed as an interactive web map with fire locations overlaid on a basemap.
+4. **S3 Upload:**
+   - Automatically uploads the map to an AWS S3 bucket, making it available via a public link.
 
-## 1.1 Data Sources
+## 🛠 Technologies Used (Check requirements file for full list of necessary packages)
+- **NASA FIRMS API:** For fetching active fire data.
+- **AWS S3:** For storing and sharing updated web map.
+- **GitHub Actions:** For automating the daily workflow.
 
-1. **NASA Fire Information for Resource Management System (FIRMS):**  
-   [Link to dataset](https://firms.modaps.eosdis.nasa.gov/usfs/)
-   
-2. **NASA FIRMS' API Documentation for Python:**  
-   [Link to API Instructions](https://firms.modaps.eosdis.nasa.gov/content/academy/data_api/firms_api_use.html)
-
-## 1.2 Method Workflow
-
-The ETL process for this project follows these steps:
-- **Extract**: Pull the latest active fire detection data from NASA FIRMS using their API.
-- **Transform**: Clip the fire data to the Los Angeles County boundary, reproject the data, and clean it up for visualization.
-- **Load**: Load the processed data into an interactive web map for visualization and access by end-users.
-
-## 1.3 Results Example
-
-An interactive web map that displays active fire detections with detailed information about the fires and options to view different basemap layers.
-
-## 2.0 Installation
-
-To run this project locally, follow these steps:
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/eacheriegate/work_ETL.git
-   cd flood-risk-analysis
-
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/eacheriegate/floodRisk_ETL.git
-   cd flood-risk-analysis
-
-2. **Set up virtual environment:**
-   ```bash
-   python -m venv env
-   source env/bin/activate
-
-3. **Install required dependencies and run the project:**
-   ```bash
-   pip install -r requirements.txt
-   python run_analysis.py
-
+## 📜 License
+This project is licensed under the **CC BY 4.0** License. See the LICENSE file for more details.

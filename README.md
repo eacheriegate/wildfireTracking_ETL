@@ -20,6 +20,17 @@ The interactive web map is generated using Python, Geopandas, and Folium and is 
 
 ## 🚀 How It Works
 
+### Data Sources
+
+1. NASA FIRMS:
+[Link to NASA FIRMS](https://firms.modaps.eosdis.nasa.gov/map)
+
+2. NASA FIRMS API Documentation for Python:
+[Link to API Instructions](https://firms.modaps.eosdis.nasa.gov/content/academy/data_api/firms_api_use.html)
+
+3. LA County Boundary:
+[Link to Boundary Feature Layer](https://geohub.lacity.org/datasets/lahub::county-boundary/about)
+
 ### Data Pipeline
 1. **Extract:**
    - Fetches the LA County boundary and active fire data (VIIRS) from NASA FIRMS API.

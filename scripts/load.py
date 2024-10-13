@@ -11,25 +11,23 @@ LA_COUNTY_BOUNDARY_FILE = "data/processed/LA_County_Boundary.shp"
 
 def format_time(acq_time):
     """Convert acq_time from HHMM to HH:MM:SS format."""
-    acq_time_str = str(acq_time).zfill(4)  # Ensure acq_time has 4 digits
-    return f"{acq_time_str[:2]}:{acq_time_str[2:]}:00"  # Format as HH:MM:SS
+    acq_time_str = str(acq_time).zfill(4) 
+    return f"{acq_time_str[:2]}:{acq_time_str[2:]}:00" 
 
 def create_interactive_fire_map(fire_data_file, boundary_file):
-    # Load the fire data and the LA County boundary shapefile
     fire_gdf = gpd.read_file(fire_data_file)
     la_boundary_gdf = gpd.read_file(boundary_file)
 
-    # Create a base map centered on LA County with no default tiles
-    la_center = [34.0522, -118.2437]  # Lat/Long of LA County
+    # Create base map centered on LA County
+    la_center = [34.0522, -118.2437]
     fire_map = folium.Map(location=la_center, zoom_start=8, tiles=None)
 
-    # Add CartoDB Positron (Light) as the default tile layer
+    # Add light, dark, and satellite imagery as base tile layers
+    folium.TileLayer('Esri.WorldImagery', name="Satellite Imagery", attr="Esri World Imagery").add_to(fire_map)
     folium.TileLayer('cartodb positron', name="Light Mode Tile", attr='Map data © OpenStreetMap contributors, © CARTO').add_to(fire_map)
-
-    # Add CartoDB Dark Matter (Dark) as another option
     folium.TileLayer('cartodbdark_matter', name="Dark Mode Tile", attr='Map data © OpenStreetMap contributors, © CARTO').add_to(fire_map)
 
-    # Add LA County boundary as a separate layer with a more subtle outline
+    # Add LA County boundary
     folium.GeoJson(
         la_boundary_gdf,
         name="LA County Boundary",
@@ -40,26 +38,23 @@ def create_interactive_fire_map(fire_data_file, boundary_file):
         }
     ).add_to(fire_map)
 
-    # Add a feature group for the fire data (this can be toggled in the LayerControl)
+    # Add fire data
     fire_layer = folium.FeatureGroup(name="Fires/Hotspots")
 
-    # Define color scheme based on fire radiative power (frp)
+    # FRP color scheme
     def get_marker_style(row):
-        frp = row.get('frp', 0)  # Fire radiative power (intensity)
+        frp = row.get('frp', 0)
         
-        # Define thresholds for low, medium, and high intensity
+        # Define FRP thresholds
         high_intensity_threshold = 3.0
         medium_intensity_threshold = 1.5
         
         # Define marker styles based on FRP values
         if frp > high_intensity_threshold:
-            # High Intensity: Dark Red, larger marker
             return {"color": "#d73027", "radius": 10, "fillOpacity": 0.8}
         elif frp > medium_intensity_threshold:
-            # Medium Intensity: Orange, medium marker
             return {"color": "#fc8d59", "radius": 8, "fillOpacity": 0.6}
         else:
-            # Low Intensity: Yellow, smaller marker
             return {"color": "#fee08b", "radius": 6, "fillOpacity": 0.5}
 
     # Add markers for each fire event
@@ -67,24 +62,49 @@ def create_interactive_fire_map(fire_data_file, boundary_file):
         lat = row['geometry'].y
         lon = row['geometry'].x
 
-        # Adjust marker size and color based on fire intensity (frp)
+        # Adjust marker size and color based on frp
         style = get_marker_style(row)
 
-         # Format acq_time from HHMM to HH:MM:SS
+         # Format acq_time to HH:MM:SS
         formatted_time = format_time(row['acq_time'])
 
-        # Enhanced popup with more information
+        # Pop up styling
         popup_html = f"""
-        <div style="font-family: Arial; font-size: 12px; background-color: rgba(255,255,255,0.85); padding: 10px; border-radius: 5px; box-shadow: 2px 2px 5px #888;">
-            <b>Date:</b> {row['acq_date']}<br>
-            <b>Time:</b> {formatted_time}<br>
-            <b>Brightness:</b> {row.get('bright_ti4', 'N/A')} K<br>
-            <b>FRP:</b> {row.get('frp', 'N/A')}
+        <div style="max-width: 600px; font-family: Arial, sans-serif; font-size: 12px; border-radius: 8px; box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3); word-break: break-word; background-color: transparent;">
+            <table style="border: none; text-align: left; border-radius: 8px; overflow: hidden;">
+                <thead>
+                    <tr style="background-color: #4a90e2; color: white;">
+                        <th style="padding: 6px; text-align: left; border-bottom: 2px solid #fff; white-space: nowrap;">DATE</th>
+                        <th style="padding: 6px; text-align: left; border-bottom: 2px solid #fff; white-space: nowrap;">TIME</th>
+                        <th style="padding: 6px; text-align: left; border-bottom: 2px solid #fff; white-space: nowrap;">
+                            FIRE HOTSPOTS<br>
+                            <span style="font-size: 12px; color: #e0e0e0;">(bright_ti4)</span>
+                        </th>
+                        <th style="padding: 6px; text-align: left; border-bottom: 2px solid #fff; white-space: nowrap;">
+                            GENERAL HEAT DETECTION<br>
+                            <span style="font-size: 12px; color: #e0e0e0;">(bright_ti5)</span>
+                        </th>
+                        <th style="padding: 6px; text-align: left; border-bottom: 2px solid #fff; white-space: nowrap;">
+                            FIRE INTENSITY<br>
+                            <span style="font-size: 12px; color: #e0e0e0;">(fire radiative power, FRP)</span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 8px; background-color: #f9f9f9; white-space: nowrap;">{row['acq_date']}</td>
+                        <td style="padding: 8px; background-color: #f9f9f9; white-space: nowrap;">{formatted_time}</td>
+                        <td style="padding: 8px; background-color: #f9f9f9;">{row.get('bright_ti4', 'N/A')} K</td>
+                        <td style="padding: 8px; background-color: #f9f9f9;">{row.get('bright_ti5', 'N/A')} K</td>
+                        <td style="padding: 8px; background-color: #f9f9f9;">{row.get('frp', 'N/A')}</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
         """
-        popup = folium.Popup(popup_html, max_width=300)
+        popup = folium.Popup(popup_html, max_width=600)
 
-        # Add marker to the fire layer
+        # Add marker to fire layer
         folium.CircleMarker(
             location=(lat, lon),
             radius=style["radius"],
@@ -94,17 +114,17 @@ def create_interactive_fire_map(fire_data_file, boundary_file):
             fill_opacity=style["fillOpacity"]
         ).add_to(fire_layer)
 
-    # Add the fire layer to the map
+    # Add fire layer to map
     fire_layer.add_to(fire_map)
 
-    # Optionally, add a heatmap layer for fire intensity
+    # Heatmap layer for fire intensity
     heat_data = [[row['geometry'].y, row['geometry'].x, row.get('frp', 0)] for _, row in fire_gdf.iterrows()]
     HeatMap(heat_data, name="Fire Intensity Heatmap", radius=15).add_to(fire_map)
 
-    # Add LayerControl to toggle layers on and off
+    # LayerControl to toggle layers
     folium.LayerControl().add_to(fire_map)
 
-    # Custom legend for fire markers
+    # Fire marker legend
     legend_html = """
         <style>
         /* Style for small screens */
@@ -137,7 +157,7 @@ def create_interactive_fire_map(fire_data_file, boundary_file):
         padding: 10px 15px;
         width: 250px; 
         font-size: 14px;
-        line-height: 1.4;  /* Reduced line-height for less space between items */
+        line-height: 1.4; 
         border: 2px solid #ccc;">
         
         <b style="font-size: 16px; margin-bottom: 6px; display: block;">Active Fire Intensity</b>
@@ -158,24 +178,24 @@ def create_interactive_fire_map(fire_data_file, boundary_file):
         """
     fire_map.get_root().html.add_child(folium.Element(legend_html))
 
-    # Display the map
+    # Display map
     return fire_map
 
-# Call the function to create the map and display it
+# Create map and display it
 if __name__ == "__main__":
     fire_map = create_interactive_fire_map(PROCESSED_FIRE_FILE, LA_COUNTY_BOUNDARY_FILE)
     display(fire_map)
 
-    # Save the map as an HTML file
+    # Save map as HTML file
     html_file = "fire_interactive_map.html"
     fire_map.save(html_file)
     print(f"Map saved to {html_file}")
 
-    # Upload to S3 bucket automatically
+    # Upload to S3 bucket 
     bucket_name = 'viirs-active-fire-map'
     os.system(f"aws s3 cp {html_file} s3://{bucket_name}/fire_interactive_map.html")
     print(f"Uploaded {html_file} to s3://{bucket_name}/fire_interactive_map.html")
 
-    # Open web map in web browser
+    # Open map in web browser
     webbrowser.open(html_file)
     print("Map opened in your default web browser.")

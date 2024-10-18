@@ -46,7 +46,7 @@ The workflow runs daily to update and publish an interactive fire map, which dis
 4. **S3 Upload:**
    - Automatically uploads the map to an AWS S3 bucket, making it available via a public link.
 
-## 🛠 Technologies Used (Check requirements file for full list of necessary packages)
+## 🛠 Technologies Used (Check [requirements.txt](https://github.com/eacheriegate/wildfireTracking_ETL/blob/master/requirements.txt) for full list of necessary packages)
 - **NASA FIRMS API:** For fetching active fire data.
 - **AWS S3:** For storing and sharing updated web map.
 - **GitHub Actions:** For automating the daily workflow.

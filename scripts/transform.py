@@ -11,7 +11,7 @@ CLIP_SHAPE_PATH = "data/raw/Borough Boundaries (Water Areas Included)/geo_export
 LaCO_bdnry_geojson = os.path.join(RAW_DATA_DIR, "LA_County_Boundary.geojson")
 
 # Dynamically select the latest fire data file in the raw directory
-VIIRS_FILE = max([os.path.join(RAW_DATA_DIR, f) for f in os.listdir(RAW_DATA_DIR) if f.startswith('VIIRS_FireData_LACo')], key=os.path.getctime)
+VIIRS_FILE = max([os.path.join(RAW_DATA_DIR, f) for f in os.listdir(RAW_DATA_DIR) if f.startswith('Cumulative_FireData_LACo')], key=os.path.getctime)
 
 def convert_file_format():
     """Convert GeoJSON to Shapefile."""

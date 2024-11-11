@@ -1,22 +1,24 @@
-import geopandas as gpd
+import geopandas as gpd 
 import pandas as pd
 from shapely.geometry import Point
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 # File paths
 RAW_DATA_DIR = "data/raw/"
 PROCESSED_DATA_DIR = "data/processed/"
-CLIP_SHAPE_PATH = "data/raw/Borough Boundaries (Water Areas Included)/geo_export_bc45aa45-2790-41c4-a0db-da60a90fd08c.shp"
 LaCO_bdnry_geojson = os.path.join(RAW_DATA_DIR, "LA_County_Boundary.geojson")
 
 # Dynamically select the latest fire data file in the raw directory
 VIIRS_FILE = max([os.path.join(RAW_DATA_DIR, f) for f in os.listdir(RAW_DATA_DIR) if f.startswith('Cumulative_FireData_LACo')], key=os.path.getctime)
 
-def convert_file_format():
-    """Convert GeoJSON to Shapefile."""
-    shapefile_output = os.path.join(PROCESSED_DATA_DIR, "LA_County_Boundary.shp")
+# Ensure output directory exists
+if not os.path.exists(PROCESSED_DATA_DIR):
+    os.makedirs(PROCESSED_DATA_DIR)
 
+def convert_file_format():
+    """Convert GeoJSON boundary file to Shapefile format."""
+    shapefile_output = os.path.join(PROCESSED_DATA_DIR, "LA_County_Boundary.shp")
     try:
         gdf = gpd.read_file(LaCO_bdnry_geojson)
         gdf.to_file(shapefile_output, driver='ESRI Shapefile')
@@ -24,16 +26,12 @@ def convert_file_format():
     except Exception as e:
         print(f"Error converting GeoJSON to Shapefile: {e}")
 
-# Convert GeoJSON to Shapefile
+# Convert GeoJSON to Shapefile if not already converted
 if __name__ == "__main__":
     convert_file_format()
 
-# Define LA County shapefile path
+# Define LA County boundary shapefile path
 LACo_bndry_shapefile = os.path.join(PROCESSED_DATA_DIR, "LA_County_Boundary.shp")
-
-# Ensure output directory exists
-if not os.path.exists(PROCESSED_DATA_DIR):
-    os.makedirs(PROCESSED_DATA_DIR)
 
 def transform_fire_data_to_shapefile(viirs_file, boundary_shapefile, output_dir):
     """
@@ -50,9 +48,20 @@ def transform_fire_data_to_shapefile(viirs_file, boundary_shapefile, output_dir)
         fire_data_df['datetime'] = pd.to_datetime(fire_data_df['datetime'])
         print(f"Loaded VIIRS fire data with {len(fire_data_df)} records")
 
-        # Filter to include only recent fires (last 24 hours)
-        recent_fires = fire_data_df[fire_data_df['datetime'] >= (datetime.now() - timedelta(days=1))]
-        print(f"Filtered to {len(recent_fires)} recent fire records")
+        # Log datetime range of the CSV data for verification
+        min_datetime = fire_data_df['datetime'].min()
+        max_datetime = fire_data_df['datetime'].max()
+        print(f"Data date range: {min_datetime} to {max_datetime}")
+
+        # Filter to include only recent fires
+        now_utc = datetime.now(timezone.utc)
+        recent_fires = fire_data_df[fire_data_df['datetime'] >= (now_utc - timedelta(hours=48))]
+        print(f"Filtered to {len(recent_fires)} recent fire records (last 48 hours)")
+
+        # Check if recent_fires is empty
+        if recent_fires.empty:
+            print("No fire records found in the last 48 hours. Exiting transformation.")
+            return
 
         # Convert fire data to GeoDataFrame
         geometry = [Point(xy) for xy in zip(recent_fires.longitude, recent_fires.latitude)]
@@ -65,13 +74,11 @@ def transform_fire_data_to_shapefile(viirs_file, boundary_shapefile, output_dir)
         # Clip fire data to LA County boundary
         fire_data_clipped = gpd.clip(fire_data_gdf, la_county_gdf)
 
-        # Create output shapefile path with timestamp
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_shapefile = os.path.join(output_dir, f"VIIRS_FireData_LACo_{timestamp}.shp")
-
-        # Save the clipped data to a new shapefile
+        # Overwrite the specified output shapefile
+        output_shapefile = os.path.join(output_dir, "VIIRS_FireData_LACo.shp")
         fire_data_clipped.to_file(output_shapefile)
         print(f"Fire data clipped to LA County boundary and saved to {output_shapefile}")
+
     except Exception as e:
         print(f"Error transforming fire data: {e}")
 

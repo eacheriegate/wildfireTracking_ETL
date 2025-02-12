@@ -45,17 +45,17 @@ def transform_fire_data_to_shapefile(viirs_file, boundary_shapefile, output_dir)
 
         # Load VIIRS fire data from CSV
         fire_data_df = pd.read_csv(viirs_file)
-        fire_data_df['datetime'] = pd.to_datetime(fire_data_df['datetime'])
+        fire_data_df['acq_datetime'] = pd.to_datetime(fire_data_df['acq_datetime'])
         print(f"Loaded VIIRS fire data with {len(fire_data_df)} records")
 
         # Log datetime range of the CSV data for verification
-        min_datetime = fire_data_df['datetime'].min()
-        max_datetime = fire_data_df['datetime'].max()
+        min_datetime = fire_data_df['acq_datetime'].min()
+        max_datetime = fire_data_df['acq_datetime'].max()
         print(f"Data date range: {min_datetime} to {max_datetime}")
 
         # Filter to include only recent fires
         now_utc = datetime.now(timezone.utc)
-        recent_fires = fire_data_df[fire_data_df['datetime'] >= (now_utc - timedelta(hours=48))]
+        recent_fires = fire_data_df[fire_data_df['acq_datetime'] >= (now_utc - timedelta(hours=48))]
         print(f"Filtered to {len(recent_fires)} recent fire records (last 48 hours)")
 
         # Check if recent_fires is empty
@@ -85,3 +85,4 @@ def transform_fire_data_to_shapefile(viirs_file, boundary_shapefile, output_dir)
 # Execute the function to clip and save fire data
 if __name__ == "__main__":
     transform_fire_data_to_shapefile(VIIRS_FILE, LACo_bndry_shapefile, PROCESSED_DATA_DIR)
+

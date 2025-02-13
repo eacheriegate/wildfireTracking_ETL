@@ -8,7 +8,7 @@ import pytz
 MAP_KEY = 'fcaac2af71c612e0b3bea31ad6ab7abe'  # Replace with your API key
 source = 'VIIRS_SNPP_NRT'
 bbox = '-118.9,33.7,-117.6,34.8'  # Bounding box for Los Angeles County
-area_url = f'https://firms.modaps.eosdis.nasa.gov/api/area/csv/{MAP_KEY}/{source}/{bbox}/2'
+area_url = f'https://firms.modaps.eosdis.nasa.gov/api/area/csv/{MAP_KEY}/{source}/{bbox}/7'
 
 # Fetch VIIRS Fire Data
 def fetch_viirs_fire_data():

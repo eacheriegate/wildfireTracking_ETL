@@ -199,3 +199,4 @@ if __name__ == "__main__":
     # Open map in web browser
     webbrowser.open(html_file)
     print("Map opened in your default web browser.")
+

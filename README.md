@@ -11,7 +11,7 @@ The workflow runs daily to update and publish an interactive fire map, which dis
 ## ✨ Features
 - **Automated Daily Updates**: Workflow is scheduled to run daily at 8 AM PST using GitHub Actions' cron jobs.
 - **Data Extraction**: Fetches the latest active fire data from NASA's Fire Information and Resource Management System (FIRMS) API and clips it to the LA County boundary.
-- **Data Transformation:** Converts the raw data into a geospatial format, filters fires from the last 48 hours, and reprojects the data to match LA County’s geographic coordinates.
+- **Data Transformation:** Converts the raw data into a geospatial format, filters fires from the last 7 days, and reprojects the data to match LA County’s geographic coordinates.
 - **Interactive Map Visualization:** Displays active fire locations and intensities on an interactive map with customizable layers, including light, dark, and satellite imagery base map tile views, and a heatmap of fire intensity with associated legend.
 - **Responsive Mobile Design:** Interactive web map includes responsive design so that its layout automatically adjusts across different screen sizes and devices.
 - **Automated S3 Upload:** After generating the map, the workflow uploads the updated map to an AWS S3 bucket, making it accessible through a public link.
@@ -36,7 +36,7 @@ The workflow runs daily to update and publish an interactive fire map, which dis
 
 2. **Transform:**
    - Converts LA County boundary GeoJSON into a shapefile format.
-   - Clips the fire data to the LA County boundary and filters it to include only fires from the last 48 hours.
+   - Clips the fire data to the LA County boundary and filters it to include only fires from the last 7 days.
    - Reprojects fire data to match the LA County coordinate system.
 
 3. **Load:**
